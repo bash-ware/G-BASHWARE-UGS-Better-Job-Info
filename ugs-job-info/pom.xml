@@ -14,9 +14,9 @@
     <artifactId>ugs-platform-plugin-job-info</artifactId>
     <version>1.0.0</version>
     <packaging>nbm</packaging>
-    <name>UGS Better Job Info</name>
+    <name>G-BASHWARE Better Job Info</name>
     <description>Physics-accurate CNC job duration, elapsed time, cutting percentage, and time left for UGS Platform</description>
-    <url>https://github.com/bash-ware/UGS-Better-Job-Info</url>
+    <url>https://github.com/bash-ware/G-BASHWARE-UGS-Better-Job-Info</url>
 
     <organization>
         <name>G-BASHWARE</name>
@@ -30,6 +30,12 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/bash-ware/G-BASHWARE-UGS-Better-Job-Info.git</connection>
+        <developerConnection>scm:git:git@github.com:bash-ware/G-BASHWARE-UGS-Better-Job-Info.git</developerConnection>
+        <url>https://github.com/bash-ware/G-BASHWARE-UGS-Better-Job-Info</url>
+    </scm>
 
     <properties>
         <ugs.version>2.0-SNAPSHOT</ugs.version>
@@ -85,6 +91,11 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-lookup</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-autoupdate-services</artifactId>
             <version>${netbeans.version}</version>
         </dependency>
         <dependency>

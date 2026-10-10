@@ -28,7 +28,7 @@ import java.awt.BorderLayout;
         id = "com.bashworks.ugs.jobinfo.JobInfoTopComponent")
 @ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN)
 @TopComponent.OpenActionRegistration(
-        displayName = "UGS Better Job Info",
+        displayName = "G-BASHWARE Better Job Info",
         preferredID = "JobInfoTopComponent")
 public final class JobInfoTopComponent extends TopComponent {
 

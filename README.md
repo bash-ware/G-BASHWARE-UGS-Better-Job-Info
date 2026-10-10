@@ -44,12 +44,20 @@ In real-world CNC machining, this fails completely:
 
 ## 📦 Installation in UGS Platform
 
-1. Download `G-BASHWARE-UGS-Better-Job-Info-for-UGS-2.1.6.nbm` from the [`dist/`](file:///f:/GDrive/BashWorks%20OU/CODEX/Tools/UGS%20Plugins/UGS%20Better%20Job%20info/dist) directory.
-2. In UGS Platform (v2.1.6+), open **Tools → Plugins**.
-3. Select the **Downloaded** tab and click **Add Plugins...**.
-4. Select the `.nbm` file and click **Install**.
-5. Restart UGS when prompted.
-6. Open the window from **Window → Plugins → UGS Better Job Info** and dock it in your preferred pane.
+### Option A: Via UGS In-App Update Center (Recommended)
+1. In UGS Platform (v2.1.6+), open **Tools → Plugins → Settings**.
+2. Click **Add** and enter:
+   * **Name**: `G-BASHWARE Better Job Info`
+   * **URL**: `https://raw.githubusercontent.com/bash-ware/G-BASHWARE-UGS-Better-Job-Info/update-center/updates.xml`
+3. Click **OK**, switch to the **Available Plugins** tab, and select **G-BASHWARE Better Job Info**.
+4. Click **Install** and restart UGS when prompted.
+
+### Option B: Manual NBM Installation
+1. Download `G-BASHWARE-UGS-Better-Job-Info-for-UGS-2.1.6.nbm` from the [Releases](https://github.com/bash-ware/G-BASHWARE-UGS-Better-Job-Info/releases) page.
+2. In UGS Platform, open **Tools → Plugins → Downloaded**.
+3. Click **Add Plugins...** and select the `.nbm` file.
+4. Click **Install** and restart UGS.
+5. Open the window from **Window → Plugins → G-BASHWARE Better Job Info** and dock it in your preferred pane.
 
 ---
 
