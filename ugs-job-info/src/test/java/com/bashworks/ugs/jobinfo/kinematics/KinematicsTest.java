@@ -1,7 +1,13 @@
 package com.bashworks.ugs.jobinfo.kinematics;
 
+import com.bashworks.ugs.jobinfo.mqtt.MqttConfig;
+import com.bashworks.ugs.jobinfo.mqtt.MqttTelemetryService;
+import com.bashworks.ugs.jobinfo.tracker.JobSnapshot;
+import com.bashworks.ugs.jobinfo.tracker.JobState;
+
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class KinematicsTest {
 
@@ -12,9 +18,11 @@ public class KinematicsTest {
         testJunctionVelocity();
         testTrapezoidalIntegration();
         testFullSimulation();
+        testMqttIntegration();
 
-        System.out.println("ALL KINEMATICS TESTS PASSED SUCCESSFULLY!");
+        System.out.println("ALL KINEMATICS & MQTT TESTS PASSED SUCCESSFULLY!");
     }
+
 
     private static void testEffectiveAcceleration() {
         MachineProfile prof = new MachineProfile("Test", 500.0, 500.0, 150.0, 5000.0, 5000.0, 1200.0, 0.010, 0.002, 1.5);
@@ -91,7 +99,49 @@ public class KinematicsTest {
         }
     }
 
+    private static void testMqttIntegration() {
+        // Test MqttConfig defaults & topic generation
+        MqttConfig cfg = new MqttConfig();
+        assertTrue(MqttConfig.DEFAULT_PUBLIC_HOST.equals(cfg.getHost()), "Default host should be broker.hivemq.com");
+        assertTrue(cfg.getPort() == 1883, "Default port should be 1883");
+        assertTrue(cfg.getTopic() != null && cfg.getTopic().startsWith("gbashware/ugs/"), "Default topic should have valid prefix");
+
+        // Test Cloud preset
+        cfg.applyHiveMqCloudPreset("abc1234.s1.eu.hivemq.cloud");
+        assertTrue(cfg.isUseTls(), "Cloud preset must enable TLS");
+        assertTrue(cfg.getPort() == 8883, "Cloud preset port must be 8883");
+
+        // Test JSON Serialization of JobSnapshot
+        MachineProfile prof = MachineProfile.standardRouter();
+        JobSnapshot snapshot = new JobSnapshot(
+                JobState.RUNNING,
+                1200.0,
+                300.0,
+                900.0,
+                25.0,
+                "15:30",
+                100,
+                500,
+                2000,
+                "bracket.nc",
+                SimulationResult.empty(),
+                prof
+        );
+
+        String json = MqttTelemetryService.serializeJson(snapshot);
+        assertTrue(json != null && json.startsWith("{") && json.endsWith("}"), "JSON must be well-formed object");
+        assertTrue(json.contains("\"state\":\"RUNNING\""), "JSON must contain state");
+        assertTrue(json.contains("\"fileName\":\"bracket.nc\""), "JSON must contain fileName");
+        assertTrue(json.contains("\"progressPercent\":25.0"), "JSON must contain progressPercent");
+        assertTrue(json.contains("\"elapsedSeconds\":300.0"), "JSON must contain elapsedSeconds");
+        assertTrue(json.contains("\"remainingSeconds\":900.0"), "JSON must contain remainingSeconds");
+        assertTrue(json.contains("\"eta\":\"15:30\""), "JSON must contain eta");
+
+        System.out.println("✓ MQTT Configuration & JSON Telemetry Serialization tests passed.");
+    }
+
     private static void assertTrue(boolean condition, String message) {
+
         if (!condition) {
             throw new AssertionError("TEST ASSERTION FAILED: " + message);
         }

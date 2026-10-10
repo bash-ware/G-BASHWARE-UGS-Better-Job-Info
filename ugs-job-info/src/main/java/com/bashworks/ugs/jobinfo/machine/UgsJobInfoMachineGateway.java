@@ -63,37 +63,55 @@ public final class UgsJobInfoMachineGateway implements JobInfoMachineGateway, UG
             Class<?> nbPrefClass = Class.forName("org.openide.util.NbPreferences");
             return (Preferences) nbPrefClass.getMethod("forModule", Class.class).invoke(null, UgsJobInfoMachineGateway.class);
         } catch (Throwable fallback) {
-            return Preferences.userNodeForPackage(UgsJobInfoMachineGateway.class);
+            try {
+                return Preferences.userNodeForPackage(UgsJobInfoMachineGateway.class);
+            } catch (Throwable noRegistry) {
+                return null;
+            }
         }
     }
 
     private MachineProfile loadCachedProfile() {
-        double ax = preferences.getDouble("accel_x", 500.0);
-        double ay = preferences.getDouble("accel_y", 500.0);
-        double az = preferences.getDouble("accel_z", 150.0);
-        double vx = preferences.getDouble("max_rate_x", 5000.0);
-        double vy = preferences.getDouble("max_rate_y", 5000.0);
-        double vz = preferences.getDouble("max_rate_z", 1200.0);
-        double dev = preferences.getDouble("junction_dev", 0.010);
-        double arc = preferences.getDouble("arc_tol", 0.002);
-        double spin = preferences.getDouble("spindle_delay", 1.5);
-        String name = preferences.get("profile_name", "Cached CNC Profile");
+        if (preferences == null) {
+            return MachineProfile.standardRouter();
+        }
+        try {
+            double ax = preferences.getDouble("accel_x", 500.0);
+            double ay = preferences.getDouble("accel_y", 500.0);
+            double az = preferences.getDouble("accel_z", 150.0);
+            double vx = preferences.getDouble("max_rate_x", 5000.0);
+            double vy = preferences.getDouble("max_rate_y", 5000.0);
+            double vz = preferences.getDouble("max_rate_z", 1200.0);
+            double dev = preferences.getDouble("junction_dev", 0.010);
+            double arc = preferences.getDouble("arc_tol", 0.002);
+            double spin = preferences.getDouble("spindle_delay", 1.5);
+            String name = preferences.get("profile_name", "Cached CNC Profile");
 
-        return new MachineProfile(name, ax, ay, az, vx, vy, vz, dev, arc, spin);
+            return new MachineProfile(name, ax, ay, az, vx, vy, vz, dev, arc, spin);
+        } catch (Throwable fallback) {
+            return MachineProfile.standardRouter();
+        }
     }
 
     private void saveCachedProfile(MachineProfile p) {
-        preferences.putDouble("accel_x", p.getAccelX());
-        preferences.putDouble("accel_y", p.getAccelY());
-        preferences.putDouble("accel_z", p.getAccelZ());
-        preferences.putDouble("max_rate_x", p.getMaxRateX());
-        preferences.putDouble("max_rate_y", p.getMaxRateY());
-        preferences.putDouble("max_rate_z", p.getMaxRateZ());
-        preferences.putDouble("junction_dev", p.getJunctionDeviation());
-        preferences.putDouble("arc_tol", p.getArcTolerance());
-        preferences.putDouble("spindle_delay", p.getSpindleSpinUpDelaySeconds());
-        preferences.put("profile_name", p.getName());
+        if (preferences == null || p == null) {
+            return;
+        }
+        try {
+            preferences.putDouble("accel_x", p.getAccelX());
+            preferences.putDouble("accel_y", p.getAccelY());
+            preferences.putDouble("accel_z", p.getAccelZ());
+            preferences.putDouble("max_rate_x", p.getMaxRateX());
+            preferences.putDouble("max_rate_y", p.getMaxRateY());
+            preferences.putDouble("max_rate_z", p.getMaxRateZ());
+            preferences.putDouble("junction_dev", p.getJunctionDeviation());
+            preferences.putDouble("arc_tol", p.getArcTolerance());
+            preferences.putDouble("spindle_delay", p.getSpindleSpinUpDelaySeconds());
+            preferences.put("profile_name", p.getName());
+        } catch (Throwable ignored) {
+        }
     }
+
 
     private synchronized void scheduleDebouncedProfileRefresh(long delayMs) {
         if (pendingRefreshTask != null && !pendingRefreshTask.isDone()) {

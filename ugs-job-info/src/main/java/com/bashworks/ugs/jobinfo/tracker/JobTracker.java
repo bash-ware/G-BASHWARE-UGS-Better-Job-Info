@@ -5,6 +5,8 @@ import com.bashworks.ugs.jobinfo.kinematics.MachineProfile;
 import com.bashworks.ugs.jobinfo.kinematics.SimulationResult;
 import com.bashworks.ugs.jobinfo.machine.JobInfoListener;
 import com.bashworks.ugs.jobinfo.machine.JobInfoMachineGateway;
+import com.bashworks.ugs.jobinfo.mqtt.MqttTelemetryService;
+
 
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -168,7 +170,9 @@ public final class JobTracker implements JobInfoListener {
         for (Consumer<JobSnapshot> listener : snapshotListeners) {
             listener.accept(snapshot);
         }
+        MqttTelemetryService.getInstance().onSnapshot(snapshot);
     }
+
 
     public JobSnapshot buildSnapshot() {
         double totalTime = simulationResult.getTotalDurationSeconds();

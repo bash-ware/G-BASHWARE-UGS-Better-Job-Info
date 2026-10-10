@@ -32,8 +32,14 @@ $sources = @(
     (Join-Path $projectRoot "ugs-job-info\src\main\java\com\bashworks\ugs\jobinfo\ui\DarkButton.java"),
     (Join-Path $projectRoot "ugs-job-info\src\main\java\com\bashworks\ugs\jobinfo\ui\MetricCard.java"),
     (Join-Path $projectRoot "ugs-job-info\src\main\java\com\bashworks\ugs\jobinfo\ui\SmoothProgressBar.java"),
+    (Join-Path $projectRoot "ugs-job-info\src\main\java\com\bashworks\ugs\jobinfo\mqtt\MqttConfig.java"),
+
+    (Join-Path $projectRoot "ugs-job-info\src\main\java\com\bashworks\ugs\jobinfo\mqtt\MiniMqttClient.java"),
+    (Join-Path $projectRoot "ugs-job-info\src\main\java\com\bashworks\ugs\jobinfo\mqtt\MqttTelemetryService.java"),
+    (Join-Path $projectRoot "ugs-job-info\src\main\java\com\bashworks\ugs\jobinfo\mqtt\MqttConfigDialog.java"),
     (Join-Path $projectRoot "ugs-job-info\src\main\java\com\bashworks\ugs\jobinfo\ui\KinematicsConfigDialog.java"),
     (Join-Path $projectRoot "ugs-job-info\src\main\java\com\bashworks\ugs\jobinfo\ui\JobInfoPanel.java"),
+
     (Join-Path $projectRoot "ugs-job-info\src\test\java\com\bashworks\ugs\jobinfo\kinematics\KinematicsTest.java"),
     (Join-Path $projectRoot "ugs-job-info\src\test\java\com\bashworks\ugs\jobinfo\ui\JobInfoStandalone.java")
 )

@@ -3,7 +3,10 @@ package com.bashworks.ugs.jobinfo.ui;
 import com.bashworks.ugs.jobinfo.kinematics.MachineProfile;
 import com.bashworks.ugs.jobinfo.kinematics.SimulationResult;
 import com.bashworks.ugs.jobinfo.machine.JobInfoMachineGateway;
+import com.bashworks.ugs.jobinfo.mqtt.MqttConfigDialog;
+import com.bashworks.ugs.jobinfo.mqtt.MqttTelemetryService;
 import com.bashworks.ugs.jobinfo.tracker.JobSnapshot;
+
 import com.bashworks.ugs.jobinfo.tracker.JobState;
 import com.bashworks.ugs.jobinfo.tracker.JobTracker;
 
@@ -96,6 +99,36 @@ public class JobInfoPanel extends JPanel {
         JPanel rightHeader = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         rightHeader.setOpaque(false);
 
+        DarkButton btnMqtt = new DarkButton("Remote (MQTT)");
+        btnMqtt.addActionListener(e -> {
+            Frame owner = (Frame) SwingUtilities.getAncestorOfClass(Frame.class, this);
+            MqttConfigDialog dlg = new MqttConfigDialog(owner);
+            dlg.setVisible(true);
+        });
+
+        MqttTelemetryService.getInstance().addStatusListener((status, detail) -> {
+            SwingUtilities.invokeLater(() -> {
+                switch (status) {
+                    case CONNECTED:
+                        btnMqtt.setText("● Remote (MQTT)");
+                        btnMqtt.setForeground(UITheme.ACCENT_GREEN);
+                        break;
+                    case CONNECTING:
+                        btnMqtt.setText("◌ Remote (MQTT)");
+                        btnMqtt.setForeground(UITheme.ACCENT_AMBER);
+                        break;
+                    case ERROR:
+                        btnMqtt.setText("▲ Remote (MQTT)");
+                        btnMqtt.setForeground(new Color(0xf8, 0x51, 0x49));
+                        break;
+                    default:
+                        btnMqtt.setText("Remote (MQTT)");
+                        btnMqtt.setForeground(UITheme.TEXT_PRIMARY);
+                        break;
+                }
+            });
+        });
+
         DarkButton btnSettings = new DarkButton("Machine Limits");
         btnSettings.addActionListener(e -> {
             Frame owner = (Frame) SwingUtilities.getAncestorOfClass(Frame.class, this);
@@ -106,8 +139,10 @@ public class JobInfoPanel extends JPanel {
         DarkButton btnRescan = new DarkButton("Re-Calculate");
         btnRescan.addActionListener(e -> tracker.triggerResimulation());
 
+        rightHeader.add(btnMqtt);
         rightHeader.add(btnSettings);
         rightHeader.add(btnRescan);
+
 
         header.add(leftHeader, BorderLayout.WEST);
         header.add(rightHeader, BorderLayout.EAST);
