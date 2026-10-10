@@ -111,7 +111,13 @@ public class SimulatedJobInfoMachineGateway implements JobInfoMachineGateway {
 
     @Override
     public boolean isConnected() { return connected; }
-    public void setConnected(boolean connected) { this.connected = connected; }
+    public void setConnected(boolean connected) {
+        this.connected = connected;
+        for (JobInfoListener listener : listeners) {
+            listener.onConnectionStateChanged(connected);
+        }
+    }
+
 
     @Override
     public boolean isSendingFile() { return sendingFile; }

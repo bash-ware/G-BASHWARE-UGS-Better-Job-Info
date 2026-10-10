@@ -24,6 +24,10 @@ import java.io.File;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 /**
@@ -35,6 +39,12 @@ public final class UgsJobInfoMachineGateway implements JobInfoMachineGateway, UG
     private final BackendAPI backend;
     private final List<JobInfoListener> listeners = new CopyOnWriteArrayList<>();
     private final Preferences preferences;
+    private final ScheduledExecutorService debounceExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "ugs-jobinfo-debounce");
+        t.setDaemon(true);
+        return t;
+    });
+    private ScheduledFuture<?> pendingRefreshTask;
 
     private MachineProfile machineProfile;
     private int currentFeedOverride = 100;
@@ -43,7 +53,9 @@ public final class UgsJobInfoMachineGateway implements JobInfoMachineGateway, UG
         this.backend = Objects.requireNonNull(backend, "backend");
         this.preferences = initPreferences();
         this.machineProfile = loadCachedProfile();
-        refreshMachineProfileFromController();
+        if (backend.isConnected()) {
+            onMachineConnected();
+        }
     }
 
     private static Preferences initPreferences() {
@@ -83,6 +95,13 @@ public final class UgsJobInfoMachineGateway implements JobInfoMachineGateway, UG
         preferences.put("profile_name", p.getName());
     }
 
+    private synchronized void scheduleDebouncedProfileRefresh(long delayMs) {
+        if (pendingRefreshTask != null && !pendingRefreshTask.isDone()) {
+            pendingRefreshTask.cancel(false);
+        }
+        pendingRefreshTask = debounceExecutor.schedule(this::refreshMachineProfileFromController, delayMs, TimeUnit.MILLISECONDS);
+    }
+
     public synchronized void refreshMachineProfileFromController() {
         if (!backend.isConnected() || backend.getController() == null) {
             return;
@@ -104,14 +123,57 @@ public final class UgsJobInfoMachineGateway implements JobInfoMachineGateway, UG
         double dev = parseSettingDouble(fw, "$11", machineProfile.getJunctionDeviation());
         double arc = parseSettingDouble(fw, "$12", machineProfile.getArcTolerance());
 
-        String fwName = "Connected (" + backend.getController().getFirmwareVersion() + ")";
-        this.machineProfile = new MachineProfile(fwName, ax, ay, az, vx, vy, vz, dev, arc, machineProfile.getSpindleSpinUpDelaySeconds());
-        saveCachedProfile(this.machineProfile);
+        String version = backend.getController().getFirmwareVersion();
+        String fwName = (version != null && !version.isBlank())
+                ? "Connected (" + version + ")"
+                : "Connected Controller";
 
-        for (JobInfoListener listener : listeners) {
-            listener.onMachineProfileChanged(this.machineProfile);
+        MachineProfile newProfile = new MachineProfile(fwName, ax, ay, az, vx, vy, vz, dev, arc, machineProfile.getSpindleSpinUpDelaySeconds());
+        if (!newProfile.equals(this.machineProfile)) {
+            this.machineProfile = newProfile;
+            saveCachedProfile(this.machineProfile);
+
+            for (JobInfoListener listener : listeners) {
+                listener.onMachineProfileChanged(this.machineProfile);
+            }
         }
     }
+
+    private void onMachineConnected() {
+        for (JobInfoListener l : listeners) {
+            l.onConnectionStateChanged(true);
+        }
+
+        // If settings aren't yet populated in the controller, proactively query with $$
+        if (backend.getController() != null) {
+            IFirmwareSettings fw = backend.getController().getFirmwareSettings();
+            boolean hasRates = (fw != null && fw.getSetting("$110").isPresent());
+            if (!hasRates && backend.isIdle()) {
+                try {
+                    backend.sendGcodeCommand("$$");
+                } catch (Exception ignored) {
+                }
+            }
+        }
+
+        scheduleDebouncedProfileRefresh(300);
+    }
+
+    private void onMachineDisconnected() {
+        String discName = "Disconnected (Cached)";
+        this.machineProfile = new MachineProfile(
+                discName,
+                machineProfile.getAccelX(), machineProfile.getAccelY(), machineProfile.getAccelZ(),
+                machineProfile.getMaxRateX(), machineProfile.getMaxRateY(), machineProfile.getMaxRateZ(),
+                machineProfile.getJunctionDeviation(), machineProfile.getArcTolerance(),
+                machineProfile.getSpindleSpinUpDelaySeconds()
+        );
+        for (JobInfoListener l : listeners) {
+            l.onConnectionStateChanged(false);
+            l.onMachineProfileChanged(this.machineProfile);
+        }
+    }
+
 
     private double parseSettingDouble(IFirmwareSettings fw, String key, double fallback) {
         try {
@@ -172,7 +234,13 @@ public final class UgsJobInfoMachineGateway implements JobInfoMachineGateway, UG
 
     @Override
     public void requestSettingsRefresh() {
-        refreshMachineProfileFromController();
+        if (backend.isConnected() && backend.isIdle()) {
+            try {
+                backend.sendGcodeCommand("$$");
+            } catch (Exception ignored) {
+            }
+        }
+        scheduleDebouncedProfileRefresh(250);
     }
 
     @Override
@@ -237,13 +305,26 @@ public final class UgsJobInfoMachineGateway implements JobInfoMachineGateway, UG
                 }
             }
         } else if (event instanceof FirmwareSettingEvent) {
-            refreshMachineProfileFromController();
+            // Controller streams 30+ settings sequentially upon connect; debounce to bundle updates
+            scheduleDebouncedProfileRefresh(250);
         } else if (event instanceof ControllerStateEvent) {
             ControllerStateEvent cse = (ControllerStateEvent) event;
-            if (cse.getState() == ControllerState.HOLD || cse.getState() == ControllerState.DOOR) {
+            ControllerState state = cse.getState();
+            ControllerState prevState = cse.getPreviousState();
+
+            if (state == ControllerState.HOLD || state == ControllerState.DOOR) {
                 for (JobInfoListener l : listeners) l.onStreamPaused();
-            } else if (cse.getState() == ControllerState.RUN && isSendingFile()) {
+            } else if (state == ControllerState.RUN && isSendingFile()) {
                 for (JobInfoListener l : listeners) l.onStreamResumed();
+            }
+
+            // Connection state transitions
+            if (state != ControllerState.DISCONNECTED && state != ControllerState.CONNECTING) {
+                if (prevState == ControllerState.DISCONNECTED || prevState == ControllerState.CONNECTING || prevState == ControllerState.UNKNOWN) {
+                    onMachineConnected();
+                }
+            } else if (state == ControllerState.DISCONNECTED && prevState != ControllerState.DISCONNECTED) {
+                onMachineDisconnected();
             }
         }
     }

@@ -214,8 +214,32 @@ public class MachineProfile {
     public void setSpindleSpinUpDelaySeconds(double delay) { this.spindleSpinUpDelaySeconds = delay; }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MachineProfile that = (MachineProfile) o;
+        return Double.compare(that.accelX, accelX) == 0 &&
+                Double.compare(that.accelY, accelY) == 0 &&
+                Double.compare(that.accelZ, accelZ) == 0 &&
+                Double.compare(that.maxRateX, maxRateX) == 0 &&
+                Double.compare(that.maxRateY, maxRateY) == 0 &&
+                Double.compare(that.maxRateZ, maxRateZ) == 0 &&
+                Double.compare(that.junctionDeviation, junctionDeviation) == 0 &&
+                Double.compare(that.arcTolerance, arcTolerance) == 0 &&
+                Double.compare(that.spindleSpinUpDelaySeconds, spindleSpinUpDelaySeconds) == 0 &&
+                Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(accelX, accelY, accelZ, maxRateX, maxRateY, maxRateZ,
+                junctionDeviation, arcTolerance, spindleSpinUpDelaySeconds, name);
+    }
+
+    @Override
     public String toString() {
         return String.format("%s (Acc: [%.0f, %.0f, %.0f] mm/s², Max: [%.0f, %.0f, %.0f] mm/min, Dev: %.3f mm)",
                 name, accelX, accelY, accelZ, maxRateX, maxRateY, maxRateZ, junctionDeviation);
     }
 }
+

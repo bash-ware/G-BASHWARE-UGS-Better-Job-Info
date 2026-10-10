@@ -288,11 +288,16 @@ public class JobInfoPanel extends JPanel {
                 lblStatusBadge.setBackground(UITheme.ACCENT_PURPLE);
                 lblStatusBadge.setForeground(Color.BLACK);
                 break;
+            case DISCONNECTED:
+                lblStatusBadge.setBackground(new Color(0x3a, 0x3d, 0x45));
+                lblStatusBadge.setForeground(UITheme.TEXT_MUTED);
+                break;
             default:
                 lblStatusBadge.setBackground(UITheme.CARD_BORDER);
                 lblStatusBadge.setForeground(UITheme.TEXT_MUTED);
                 break;
         }
+
     }
 
     private void setupBadge(JLabel badge, Color bg, Color fg) {

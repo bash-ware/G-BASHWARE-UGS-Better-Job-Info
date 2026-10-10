@@ -53,6 +53,10 @@ public final class JobTracker implements JobInfoListener {
     public JobTracker(JobInfoMachineGateway gateway) {
         this.gateway = gateway;
         this.machineProfile = gateway.getLiveMachineProfile();
+        this.currentFile = gateway.getLoadedGcodeFile();
+        this.state = gateway.isConnected()
+                ? (currentFile != null ? JobState.READY : JobState.IDLE)
+                : JobState.DISCONNECTED;
         this.gateway.addListener(this);
 
         // 10 Hz refresh ticker (every 100ms) on Swing EDT
@@ -142,10 +146,15 @@ public final class JobTracker implements JobInfoListener {
         } else {
             if (state == JobState.RUNNING || state == JobState.PAUSED) {
                 onStreamCompleted();
+            } else if (!gateway.isConnected() && currentFile == null) {
+                state = JobState.DISCONNECTED;
+            } else if (state == JobState.DISCONNECTED && gateway.isConnected()) {
+                state = (currentFile != null) ? JobState.READY : JobState.IDLE;
             }
         }
 
         int compRows = gateway.getCompletedRows();
+
         if (compRows > lastCompletedCommandIndex) {
             lastCompletedCommandIndex = compRows;
         }
@@ -321,4 +330,22 @@ public final class JobTracker implements JobInfoListener {
             emitSnapshot();
         }
     }
+
+    @Override
+    public void onConnectionStateChanged(boolean connected) {
+        if (!connected) {
+            if (state == JobState.RUNNING || state == JobState.PAUSED) {
+                onStreamCompleted();
+            }
+            if (currentFile == null) {
+                this.state = JobState.DISCONNECTED;
+            }
+        } else {
+            if (state == JobState.DISCONNECTED) {
+                this.state = (currentFile != null) ? JobState.READY : JobState.IDLE;
+            }
+        }
+        emitSnapshot();
+    }
 }
+
