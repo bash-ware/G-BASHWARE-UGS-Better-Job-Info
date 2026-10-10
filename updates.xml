@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE module_updates PUBLIC "-//NetBeans//DTD Autoupdate Catalog 2.8//EN" "https://netbeans.apache.org/dtds/autoupdate-catalog-2_8.dtd">
+<module_updates timestamp="24/58/18/10/10/2026">
+
+
+
+<module codenamebase="com.willwinder.ugs.platform.plugin.job.info" distribution="https://raw.githubusercontent.com/bash-ware/G-BASHWARE-UGS-Better-Job-Info/update-center/ugs-platform-plugin-job-info-1.0.0.nbm" downloadsize="59107" homepage="https://github.com/bash-ware/G-BASHWARE-UGS-Better-Job-Info" license="36074ADE" moduleauthor="G-BASHWARE" needsrestart="false" releasedate="2026/10/10" targetcluster="ugsplatform">
+        
+    <manifest AutoUpdate-Essential-Module="false" OpenIDE-Module="com.willwinder.ugs.platform.plugin.job.info" OpenIDE-Module-Display-Category="G-BASHWARE" OpenIDE-Module-Implementation-Version="1.0.0" OpenIDE-Module-Java-Dependencies="Java &gt; 11" OpenIDE-Module-Long-Description="&lt;p&gt;G-BASHWARE Better Job Info calculates physics-accurate job total time, elapsed time, true cutting percentage, and dynamic remaining time/ETA by analyzing loaded G-code with machine acceleration and velocity limits.&lt;/p&gt;" OpenIDE-Module-Module-Dependencies="com.willwinder.ugs.platform.ugslib &gt; 2.0.0.2024.03.08.07.26, org.netbeans.api.annotations.common/1 &gt; 1.48, org.openide.awt &gt; 7.88, org.openide.windows &gt; 6.97, org.openide.util &gt; 9.28, org.openide.util.lookup &gt; 8.54, org.netbeans.modules.autoupdate.services &gt; 1.76" OpenIDE-Module-Name="G-BASHWARE Better Job Info" OpenIDE-Module-Requires="org.openide.modules.ModuleFormat1" OpenIDE-Module-Short-Description="Physics-accurate CNC job duration, elapsed time, cutting percentage, and time left" OpenIDE-Module-Specification-Version="1.0.0"/>
+        
+
+    <message_digest algorithm="SHA-512" value="b4d9dcb141054b88a0fedb0f480ed692fa7f036366ef71366a11f3b66c19b5af09e5defcc01c54102c2fb9f86b008a2fa2459e61199d52603647d0614056680f"/>
+</module>
+
+<license name="36074ADE">Copyright G-BASHWARE 2012-2026
+-----------------------------------------------------
+License terms:
+GNU General Public License v3.0 - https://www.gnu.org/licenses/gpl-3.0.html</license>
+</module_updates>
+
