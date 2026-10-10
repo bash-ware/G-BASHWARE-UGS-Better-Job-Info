@@ -1,0 +1,13 @@
+.upstream/
+.m2/
+.verify/
+dist/
+**/target/
+**/bin/
+**/obj/
+**/.flattened-pom.xml
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db

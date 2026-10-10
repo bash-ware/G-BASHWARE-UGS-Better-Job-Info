@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.willwinder</groupId>
+        <artifactId>ugs-platform-parent</artifactId>
+        <version>${revision}${changelist}</version>
+        <relativePath>../.upstream/ugs/ugs-platform/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>ugs-platform-plugin-job-info</artifactId>
+    <version>1.0.0</version>
+    <packaging>nbm</packaging>
+    <name>UGS Better Job Info</name>
+    <description>Physics-accurate CNC job duration, elapsed time, cutting percentage, and time left for UGS Platform</description>
+    <url>https://github.com/bash-ware/UGS-Better-Job-Info</url>
+
+    <organization>
+        <name>G-BASHWARE</name>
+        <url>https://github.com/bash-ware</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License v3.0</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <properties>
+        <ugs.version>2.0-SNAPSHOT</ugs.version>
+        <ugs.modules.specification.version>1.0.0</ugs.modules.specification.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.netbeans.utilities</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ugs-platform-ugslib</artifactId>
+            <version>${ugs.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.willwinder.universalgcodesender</groupId>
+            <artifactId>ugs-core</artifactId>
+            <version>${ugs.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-annotations-common</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-awt</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-windows</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+            <version>${netbeans.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${ugs.junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
