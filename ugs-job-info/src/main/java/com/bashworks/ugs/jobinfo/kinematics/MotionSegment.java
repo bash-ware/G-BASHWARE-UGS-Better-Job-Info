@@ -19,7 +19,7 @@ public class MotionSegment {
     private final double startX, startY, startZ;
     private final double endX, endY, endZ;
     private final double dx, dy, dz;
-    private final double length; // Euclidean length (mm)
+    private double length; // Euclidean or curved arc length (mm)
 
     // Unit direction vector
     private final double ux, uy, uz;
@@ -121,6 +121,7 @@ public class MotionSegment {
     public double getDy() { return dy; }
     public double getDz() { return dz; }
     public double getLength() { return length; }
+    public void setLength(double length) { this.length = Math.max(0.0, length); }
 
     public double getUx() { return ux; }
     public double getUy() { return uy; }

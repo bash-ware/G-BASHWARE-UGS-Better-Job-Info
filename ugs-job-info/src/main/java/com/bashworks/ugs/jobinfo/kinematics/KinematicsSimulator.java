@@ -256,6 +256,7 @@ public final class KinematicsSimulator {
                     MotionSegment seg = new MotionSegment(lineNumber, currentCmdIdx, MotionSegment.Type.ARC,
                             currentX, currentY, currentZ, targetX, targetY, targetZ,
                             feedRateMmMin, profile);
+                    seg.setLength(totalArcLength);
 
                     // Radial acceleration cap for arcs: a_centripetal = v^2 / R <= a_eff => v <= sqrt(a_eff * R)
                     if (radius > 1e-4) {

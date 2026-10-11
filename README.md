@@ -83,7 +83,7 @@ To run only the kinematics unit tests:
 ```powershell
 .\build.ps1
 ```
-Generates: `ugs-job-info/target/nbm/ugs-platform-plugin-job-info-1.1.0.nbm`.
+Generates: `ugs-job-info/target/nbm/ugs-platform-plugin-job-info-1.2.0.nbm`.
 
 ### Full Release Packaging
 ```powershell
@@ -91,7 +91,7 @@ Generates: `ugs-job-info/target/nbm/ugs-platform-plugin-job-info-1.1.0.nbm`.
 ```
 Outputs release artifacts to `dist/`:
 * `G-BASHWARE-UGS-Better-Job-Info-for-UGS-2.1.6.nbm` — Ready for manual installation.
-* `G-BASHWARE-UGS-Better-Job-Info-1.1.0_UGS-2.1.6_Windows.zip` — Packaged release archive with installation guide.
+* `G-BASHWARE-UGS-Better-Job-Info-1.2.0_UGS-2.1.6_Windows.zip` — Packaged release archive with installation guide.
 * `SHA256SUMS.txt` — SHA-256 verification checksums.
 
 

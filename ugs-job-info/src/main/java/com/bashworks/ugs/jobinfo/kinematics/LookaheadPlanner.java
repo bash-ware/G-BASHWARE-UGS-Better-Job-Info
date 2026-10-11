@@ -37,7 +37,14 @@ public final class LookaheadPlanner {
                     || prev.getLength() < 1e-9 || curr.getLength() < 1e-9) {
                 curr.setMaxJunctionEntry(0.0);
             } else {
-                double a = Math.min(prev.getAccel(), curr.getAccel());
+                double jux = curr.getUx() - prev.getUx();
+                double juy = curr.getUy() - prev.getUy();
+                double juz = curr.getUz() - prev.getUz();
+                double jLenSq = jux * jux + juy * juy + juz * juz;
+                double a = (jLenSq > 1e-12)
+                        ? profile.effectiveAcceleration(jux, juy, juz)
+                        : Math.min(prev.getAccel(), curr.getAccel());
+
                 double vJunc = profile.junctionVelocity(
                         prev.getUx(), prev.getUy(), prev.getUz(),
                         curr.getUx(), curr.getUy(), curr.getUz(),

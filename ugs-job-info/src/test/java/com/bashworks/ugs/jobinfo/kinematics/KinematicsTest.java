@@ -45,15 +45,29 @@ public class KinematicsTest {
     private static void testJunctionVelocity() {
         MachineProfile prof = MachineProfile.standardRouter();
 
+        // 0 degree collinear (straight line)
+        double vStraight = prof.junctionVelocity(1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 500.0);
+        assertTrue(Double.isInfinite(vStraight) && vStraight > 0.0, "0 deg straight move must allow infinite/unlimited junction velocity");
+
+        // 15 degree gentle turn
+        double rad15 = Math.toRadians(15);
+        double v15 = prof.junctionVelocity(1.0, 0.0, 0.0, Math.cos(rad15), Math.sin(rad15), 0.0, 500.0);
+
         // 90 degree corner between (+X) and (+Y)
-        double vJunc = prof.junctionVelocity(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 500.0);
-        assertTrue(vJunc > 0.0 && vJunc < 100.0, "90 deg junction velocity should be positive and finite");
+        double v90 = prof.junctionVelocity(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 500.0);
+        assertTrue(v90 > 0.0 && v90 < 100.0, "90 deg junction velocity should be positive and finite");
+        assertTrue(v15 > v90, "15 deg gentle turn velocity (" + v15 + ") must be significantly faster than 90 deg corner (" + v90 + ")");
+
+        // 165 degree sharp turn
+        double rad165 = Math.toRadians(165);
+        double v165 = prof.junctionVelocity(1.0, 0.0, 0.0, Math.cos(rad165), Math.sin(rad165), 0.0, 500.0);
+        assertTrue(v90 > v165, "90 deg corner must allow faster speed than sharp 165 deg turn");
 
         // 180 degree reversal
         double vRev = prof.junctionVelocity(1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 500.0);
         assertTrue(vRev == 0.0, "180 deg reversal must come to complete stop (0 mm/s)");
 
-        System.out.println("✓ Junction velocity test passed.");
+        System.out.println("✓ Junction velocity test passed (monotonic angle decrease verified).");
     }
 
     private static void testTrapezoidalIntegration() {

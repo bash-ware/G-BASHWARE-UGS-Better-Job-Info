@@ -39,16 +39,16 @@ $$v_{nominal} = \min\left( \frac{F}{60}, v_{max\_eff} \right)$$
 
 ### 1.3 Junction Cornering Velocity (GRBL Junction Deviation Algorithm)
 When transitioning from block $n-1$ (unit vector $\hat{u}_{prev}$) to block $n$ (unit vector $\hat{u}_{curr}$):
-1. Compute the change in direction angle $\theta$:
-   $$\cos(\theta) = -\hat{u}_{prev} \cdot \hat{u}_{curr}$$
-   $$\sin\left(\frac{\theta}{2}\right) = \sqrt{\frac{1 + \hat{u}_{prev} \cdot \hat{u}_{curr}}{2}}$$
+1. Compute the junction cornering cosine term (negative of dot product in Grbl):
+   $$\text{junction\_cos\_theta} = - (\hat{u}_{prev} \cdot \hat{u}_{curr})$$
+   $$\sin\left(\frac{\theta}{2}\right) = \sqrt{\frac{1 - \text{junction\_cos\_theta}}{2}} = \sqrt{\frac{1 + \hat{u}_{prev} \cdot \hat{u}_{curr}}{2}}$$
+   * When collinear ($\theta = 0^\circ$ turn, moving in same direction): $\hat{u}_{prev} \cdot \hat{u}_{curr} = 1.0 \implies \text{junction\_cos\_theta} = -1.0 \implies \sin(\theta/2) = 1.0 \implies R \to \infty$ ($v_{junction}$ unconstrained / full cruise speed).
+   * When reversing ($180^\circ$ turn): $\hat{u}_{prev} \cdot \hat{u}_{curr} = -1.0 \implies \text{junction\_cos\_theta} = +1.0 \implies \sin(\theta/2) = 0.0 \implies R = 0$ ($v_{junction} = 0$, full stop).
 2. Centripetal acceleration constraint at the junction:
    $$R_{corner} = \frac{\delta \cdot \sin(\theta/2)}{1 - \sin(\theta/2)}$$
    $$v_{junction} = \sqrt{a_{eff} \cdot R_{corner}}$$
 3. Clamp junction speed:
    $$v_{junction} = \min(v_{junction}, v_{nominal, prev}, v_{nominal, curr})$$
-
-If the vectors are collinear ($\theta = 0$), $v_{junction} = \min(v_{nominal, prev}, v_{nominal, curr})$. If reversing $180^\circ$, $v_{junction} = 0$.
 
 ### 1.4 Two-Pass Lookahead Velocity Planner
 Given an array of motion blocks $[B_1, B_2, \dots, B_N]$:

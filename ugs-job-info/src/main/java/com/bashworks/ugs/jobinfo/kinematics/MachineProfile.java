@@ -153,31 +153,39 @@ public class MachineProfile {
     public double junctionVelocity(double u1x, double u1y, double u1z,
                                     double u2x, double u2y, double u2z,
                                     double accel) {
-        // Dot product of unit vectors: cos(theta) = - (u1 . u2) in junction direction change terms
-        // In GRBL: cos_theta = - u1x * u2x - u1y * u2y - u1z * u2z
+        // In Grbl: junction_cos_theta = - u1x * u2x - u1y * u2y - u1z * u2z
+        // When moving in the exact same direction (0° turn): u1 . u2 = 1.0, so cosTheta = -1.0
+        // When reversing direction (180° turn): u1 . u2 = -1.0, so cosTheta = +1.0
         double cosTheta = - (u1x * u2x + u1y * u2y + u1z * u2z);
 
-        // Near-collinear (moving in same direction): cosTheta is close to -1
-        if (cosTheta < -0.999999) {
-            // Full speed continuous transition
-            return Double.POSITIVE_INFINITY;
-        }
-
-        // Full 180 reversal: cosTheta is close to +1
+        // Full 180° reversal: must come to a complete stop
         if (cosTheta > 0.999999) {
             return 0.0;
         }
 
-        // sin(theta/2) = sqrt((1 + cos_theta) / 2)
-        double sinHalfTheta = Math.sqrt((1.0 + cosTheta) * 0.5);
-        if (sinHalfTheta > 0.9999) {
+        // Collinear / straight line (0° turn): full continuous speed without corner slowdown
+        if (cosTheta < -0.999999) {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        // Grbl trigonometric half-angle identity:
+        // sin_theta_d2 = sqrt(0.5 * (1.0 - junction_cos_theta))
+        // As the turn approaches 0° (straight), cosTheta -> -1.0 => sin_theta_d2 -> 1.0,
+        // (1.0 - sin_theta_d2) -> 0, yielding an infinite turning radius (full cruise speed).
+        // As the turn approaches 180° (reversal), cosTheta -> +1.0 => sin_theta_d2 -> 0.0,
+        // yielding zero turning radius (0 mm/s junction speed).
+        double sinHalfTheta = Math.sqrt(0.5 * (1.0 - cosTheta));
+        if (sinHalfTheta >= 0.999999) {
+            return Double.POSITIVE_INFINITY;
+        }
+        if (sinHalfTheta <= 1e-6) {
             return 0.0;
         }
 
-        // Equivalent turning radius R = (junctionDeviation * sinHalfTheta) / (1 - sinHalfTheta)
+        // Equivalent turning radius R = (junctionDeviation * sinHalfTheta) / (1.0 - sinHalfTheta)
         double rCorner = (junctionDeviation * sinHalfTheta) / (1.0 - sinHalfTheta);
 
-        // Centripetal acceleration: v_junction = sqrt(accel * R)
+        // Centripetal acceleration constraint: v_junction = sqrt(accel * R)
         double vJunction = Math.sqrt(accel * rCorner);
         return Math.max(0.0, vJunction);
     }

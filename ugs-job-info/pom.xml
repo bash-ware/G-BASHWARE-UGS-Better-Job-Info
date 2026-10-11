@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>ugs-platform-plugin-job-info</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <packaging>nbm</packaging>
     <name>G-BASHWARE Better Job Info</name>
     <description>Physics-accurate CNC job duration, elapsed time, cutting percentage, and time left for UGS Platform</description>
@@ -39,7 +39,7 @@
 
     <properties>
         <ugs.version>2.0-SNAPSHOT</ugs.version>
-        <ugs.modules.specification.version>1.1.0</ugs.modules.specification.version>
+        <ugs.modules.specification.version>1.2.0</ugs.modules.specification.version>
     </properties>
 
     <build>
@@ -61,12 +61,32 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>ugs-platform-ugslib</artifactId>
             <version>${ugs.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jogamp.jogl</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jogamp.gluegen</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.willwinder.universalgcodesender</groupId>
             <artifactId>ugs-core</artifactId>
             <version>${ugs.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jogamp.jogl</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jogamp.gluegen</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
